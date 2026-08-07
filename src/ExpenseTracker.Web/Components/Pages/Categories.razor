@@ -1,0 +1,176 @@
+@page "/categories"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@using ExpenseTracker.Application.Common.Models
+@using ExpenseTracker.Application.Features.Categories.Commands.CreateCategory
+@using ExpenseTracker.Application.Features.Categories.Commands.DeleteCategory
+@using ExpenseTracker.Application.Features.Categories.Queries.GetCategories
+@using ExpenseTracker.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject CreateCategoryCommandHandler CreateCategoryHandler
+@inject DeleteCategoryCommandHandler DeleteCategoryHandler
+@inject GetCategoriesQueryHandler GetCategoriesHandler
+
+<PageTitle>Categories - Expense Tracker</PageTitle>
+
+<div class="page-header mb-5">
+    <h1>Categories</h1>
+    <p>Organize your income and expenses</p>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Add Category</h3>
+            </div>
+            <div class="card-body">
+                <EditForm Model="_model" OnValidSubmit="HandleCreate">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <InputText @bind-Value="_model.Name" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <InputSelect @bind-Value="_model.Type" class="form-select">
+                            <option value="@TransactionType.Expense">Expense</option>
+                            <option value="@TransactionType.Income">Income</option>
+                        </InputSelect>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" disabled="@_isProcessing">Add Category</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Expense Categories</h3>
+            </div>
+            <div class="card-body">
+                @if (_expenseCategories.Count == 0)
+                {
+                    <p class="text-muted">No expense categories yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group">
+                        @foreach (var category in _expenseCategories)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @category.Name
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => HandleDelete(category.Id)">Delete</button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Income Categories</h3>
+            </div>
+            <div class="card-body">
+                @if (_incomeCategories.Count == 0)
+                {
+                    <p class="text-muted">No income categories yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group">
+                        @foreach (var category in _incomeCategories)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @category.Name
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => HandleDelete(category.Id)">Delete</button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreateCategoryModel _model = new();
+    private List<CategoryDto> _expenseCategories = new();
+    private List<CategoryDto> _incomeCategories = new();
+    private string? _errorMessage;
+    private bool _isProcessing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoriesAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        var categories = await GetCategoriesHandler.Handle(new GetCategoriesQuery());
+        _expenseCategories = categories.Where(c => c.Type == TransactionType.Expense).ToList();
+        _incomeCategories = categories.Where(c => c.Type == TransactionType.Income).ToList();
+    }
+
+    private async Task HandleCreate()
+    {
+        _isProcessing = true;
+        _errorMessage = null;
+
+        try
+        {
+            await CreateCategoryHandler.Handle(new CreateCategoryCommand
+            {
+                Name = _model.Name,
+                Type = _model.Type
+            });
+
+            _model = new CreateCategoryModel();
+            await LoadCategoriesAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private async Task HandleDelete(int id)
+    {
+        _errorMessage = null;
+
+        try
+        {
+            await DeleteCategoryHandler.Handle(new DeleteCategoryCommand(id));
+            await LoadCategoriesAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+
+    public class CreateCategoryModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public TransactionType Type { get; set; } = TransactionType.Expense;
+    }
+}

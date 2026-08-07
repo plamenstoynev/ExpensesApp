@@ -1,0 +1,26 @@
+@inherits LayoutComponentBase
+
+<div class="app-container">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <AuthDisplay />
+        </div>
+
+        <article class="content">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    <div class="error-content">
+        <span class="error-icon">⚠️</span>
+        <span>An error occurred. Please try again.</span>
+        <a href="." class="reload-btn">Reload</a>
+        <button class="dismiss-btn">✕</button>
+    </div>
+</div>

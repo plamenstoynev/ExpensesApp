@@ -1,0 +1,48 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="nav-container">
+    <div class="nav-header">
+        <h1 class="app-title">
+            <span class="app-icon">💰</span>
+            Expense Tracker
+        </h1>
+    </div>
+
+    <AuthorizeView>
+        <Authorized>
+            <nav class="nav-menu">
+                <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </NavLink>
+
+                <NavLink class="nav-item" href="/transactions">
+                    <span class="nav-icon">💳</span>
+                    <span class="nav-text">Transactions</span>
+                </NavLink>
+
+                <NavLink class="nav-item" href="/categories">
+                    <span class="nav-icon">🏷️</span>
+                    <span class="nav-text">Categories</span>
+                </NavLink>
+
+                <NavLink class="nav-item" href="/budgets">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">Budgets</span>
+                </NavLink>
+
+                <NavLink class="nav-item" href="/reports">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Reports</span>
+                </NavLink>
+            </nav>
+        </Authorized>
+        <NotAuthorized>
+            <div class="nav-guest">
+                <p class="guest-message">Please log in to access your financial data.</p>
+                <a href="/account/login" class="btn btn-primary">Login</a>
+                <a href="/account/register" class="btn btn-outline">Register</a>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>

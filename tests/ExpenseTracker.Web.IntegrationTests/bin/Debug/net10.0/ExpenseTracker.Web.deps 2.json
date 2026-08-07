@@ -1,0 +1,73 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "ExpenseTracker.Web/1.0.0": {
+        "dependencies": {
+          "ExpenseTracker.Application": "1.0.0",
+          "ExpenseTracker.Infrastructure": "1.0.0"
+        },
+        "runtime": {
+          "ExpenseTracker.Web.dll": {}
+        }
+      },
+      "ExpenseTracker.Application/1.0.0": {
+        "dependencies": {
+          "ExpenseTracker.Domain": "1.0.0"
+        },
+        "runtime": {
+          "ExpenseTracker.Application.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "ExpenseTracker.Domain/1.0.0": {
+        "runtime": {
+          "ExpenseTracker.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "ExpenseTracker.Infrastructure/1.0.0": {
+        "dependencies": {
+          "ExpenseTracker.Application": "1.0.0",
+          "ExpenseTracker.Domain": "1.0.0"
+        },
+        "runtime": {
+          "ExpenseTracker.Infrastructure.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ExpenseTracker.Web/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ExpenseTracker.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ExpenseTracker.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ExpenseTracker.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

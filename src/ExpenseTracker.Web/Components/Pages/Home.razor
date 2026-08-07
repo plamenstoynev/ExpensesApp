@@ -1,0 +1,97 @@
+@page "/"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>Dashboard - Expense Tracker</PageTitle>
+
+<div class="dashboard">
+    <div class="page-header mb-5">
+        <h1>Dashboard</h1>
+        <p>Welcome to your expense tracker</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Current Balance</div>
+                <div class="stat-value">$0.00</div>
+                <div class="stat-change positive">↑ 0%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Income</div>
+                <div class="stat-value">$0.00</div>
+                <div class="stat-change positive">This month</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value">$0.00</div>
+                <div class="stat-change">This month</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-label">Budget Status</div>
+                <div class="stat-value">On Track</div>
+                <div class="stat-change">0% used</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Transactions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💳</div>
+                        <div class="empty-state-title">No transactions yet</div>
+                        <div class="empty-state-text">Start tracking your finances by adding your first transaction</div>
+                        <a href="/transactions/create" class="btn btn-primary">Add Transaction</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a href="/transactions/create" class="btn btn-primary">Add Transaction</a>
+                        <a href="/categories" class="btn btn-outline">Manage Categories</a>
+                        <a href="/budgets" class="btn btn-outline">Set Budget</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Getting Started</h3>
+                </div>
+                <div class="card-body">
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                        <li style="margin-bottom: 0.5rem;">Set up your categories</li>
+                        <li style="margin-bottom: 0.5rem;">Add your first transaction</li>
+                        <li style="margin-bottom: 0.5rem;">Create monthly budgets</li>
+                        <li>Track your spending</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

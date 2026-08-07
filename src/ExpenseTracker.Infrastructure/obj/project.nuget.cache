@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "gi8TUU844l4=",
+  "success": false,
+  "projectFilePath": "/Users/plamenstoynev/Documents/Coding/C#/APS NET /first project/src/ExpenseTracker.Infrastructure/ExpenseTracker.Infrastructure.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1008",
+      "level": "Error",
+      "message": "The following PackageReference items cannot define a value for Version: Microsoft.AspNetCore.Http, Microsoft.AspNetCore.Identity.EntityFrameworkCore, Microsoft.AspNetCore.Identity.UI, Microsoft.EntityFrameworkCore.Design, Microsoft.EntityFrameworkCore.Sqlite, Microsoft.EntityFrameworkCore.SqlServer. Projects using Central Package Management must define a Version value on a PackageVersion item. For more information, visit https://aka.ms/nuget/cpm/gettingstarted",
+      "projectPath": "/Users/plamenstoynev/Documents/Coding/C#/APS NET /first project/src/ExpenseTracker.Infrastructure/ExpenseTracker.Infrastructure.csproj",
+      "filePath": "/Users/plamenstoynev/Documents/Coding/C#/APS NET /first project/src/ExpenseTracker.Infrastructure/ExpenseTracker.Infrastructure.csproj",
+      "targetGraphs": []
+    }
+  ]
+}

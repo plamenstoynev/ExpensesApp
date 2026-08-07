@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5087 nohup dotnet run --no-build)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(lsof -i :5087 -sTCP:LISTEN)",
+      "Bash(lsof -i :7260 -sTCP:LISTEN)",
+      "Bash(kill 79452)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -b cookies.txt -c cookies.txt -i -X POST http://localhost:5087/account/register --data-urlencode _handler=register --data-urlencode __RequestVerificationToken=__TRACKED_VAR__ --data-urlencode Input.Email=__TRACKED_VAR__ --data-urlencode Input.Password=Passw0rd!23 --data-urlencode Input.ConfirmPassword=Passw0rd!23 -o register_result2.html -w 'HTTP_STATUS:%{http_code}\\\\n' -D headers2.txt)",
+      "Bash(kill 85549)",
+      "Bash(rm -f cookies3.txt)",
+      "Bash(curl -s -c cookies3.txt -o register_page3.html http://localhost:5087/account/register)",
+      "Bash(python3 -c \"print\\(open\\('register_page3.html'\\).read\\(\\).count\\('__RequestVerificationToken'\\)\\)\")",
+      "Bash(echo \"Token occurrences: $\\(python3 -c \"print\\(open\\('register_page3.html'\\).read\\(\\).count\\('__RequestVerificationToken'\\)\\)\"\\)\")",
+      "Bash(rm -f cA.txt cB.txt)",
+      "Bash(curl -s -c cA.txt -o pageA.html http://localhost:5087/account/register)",
+      "Bash(curl -s -b cA.txt -c cA.txt -o /dev/null -w 'REGISTER_STATUS:%{http_code}\\\\n' -X POST http://localhost:5087/account/register --data-urlencode _handler=register --data-urlencode __RequestVerificationToken=__TRACKED_VAR__ --data-urlencode Input.Email=__TRACKED_VAR__ --data-urlencode Input.Password=__TRACKED_VAR__ --data-urlencode Input.ConfirmPassword=__TRACKED_VAR__)",
+      "Bash(curl -s -c cB.txt -o pageB.html http://localhost:5087/account/login)",
+      "Bash(awk 'NR>1{print $2}')",
+      "Bash(xargs -r kill)",
+      "Bash(dotnet --version)",
+      "Bash(dotnet --list-sdks)"
+    ]
+  }
+}

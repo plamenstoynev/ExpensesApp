@@ -1,0 +1,132 @@
+@page "/transactions/edit/{Id:int}"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@using ExpenseTracker.Application.Common.Models
+@using ExpenseTracker.Application.Features.Transactions.Commands.UpdateTransaction
+@using ExpenseTracker.Application.Features.Transactions.Queries.GetTransactionById
+@using Microsoft.AspNetCore.Authorization
+@inject UpdateTransactionCommandHandler UpdateTransactionHandler
+@inject GetTransactionByIdQueryHandler GetTransactionByIdHandler
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit Transaction - Expense Tracker</PageTitle>
+
+<div class="page-header mb-5">
+    <h1>Edit Transaction</h1>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+@if (_notFound)
+{
+    <div class="alert alert-warning">Transaction not found.</div>
+}
+else if (_model is not null)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>Type:</strong> @_transactionType &nbsp; <strong>Category:</strong> @_categoryName</p>
+
+                    <EditForm Model="_model" OnValidSubmit="HandleUpdate">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <InputNumber @bind-Value="_model.Amount" class="form-control" step="0.01" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <InputDate @bind-Value="_model.TransactionDate" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <InputTextArea @bind-Value="_model.Description" class="form-control" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled="@_isProcessing">Save Changes</button>
+                        <a href="/transactions" class="btn btn-outline">Cancel</a>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private EditTransactionModel? _model;
+    private string? _transactionType;
+    private string? _categoryName;
+    private bool _notFound;
+    private string? _errorMessage;
+    private bool _isProcessing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var transaction = await GetTransactionByIdHandler.Handle(new GetTransactionByIdQuery(Id));
+
+        if (transaction is null)
+        {
+            _notFound = true;
+            return;
+        }
+
+        _transactionType = transaction.Type.ToString();
+        _categoryName = transaction.CategoryName;
+        _model = new EditTransactionModel
+        {
+            Amount = transaction.Amount,
+            TransactionDate = transaction.TransactionDate,
+            Description = transaction.Description
+        };
+    }
+
+    private async Task HandleUpdate()
+    {
+        if (_model is null)
+        {
+            return;
+        }
+
+        _isProcessing = true;
+        _errorMessage = null;
+
+        try
+        {
+            await UpdateTransactionHandler.Handle(new UpdateTransactionCommand
+            {
+                Id = Id,
+                Amount = _model.Amount,
+                Description = _model.Description,
+                TransactionDate = _model.TransactionDate
+            });
+
+            NavigationManager.NavigateTo("/transactions");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    public class EditTransactionModel
+    {
+        public decimal Amount { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public string? Description { get; set; }
+    }
+}

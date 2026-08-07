@@ -1,0 +1,16 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<AuthorizeView>
+    <Authorized>
+        <div class="auth-display">
+            <span class="user-email">@context.User.Identity?.Name</span>
+            <a href="/account/logout" class="logout-btn">Logout</a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="auth-display">
+            <a href="/account/login" class="btn btn-sm btn-primary">Login</a>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
