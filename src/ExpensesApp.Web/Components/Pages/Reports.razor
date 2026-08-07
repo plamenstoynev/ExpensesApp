@@ -1,0 +1,140 @@
+@page "/reports"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@using System.Globalization
+@using ExpensesApp.Application.Common.Models
+@using ExpensesApp.Application.Features.Reports.Queries.GetMonthlyReport
+@using Microsoft.AspNetCore.Authorization
+@inject GetMonthlyReportQueryHandler GetMonthlyReportHandler
+
+<PageTitle>Reports - Expenses App</PageTitle>
+
+<div class="page-header mb-5">
+    <h1>Reports</h1>
+    <p>Monthly income and expense breakdown</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <label class="form-label">Month</label>
+        <select class="form-select" @bind="_selectedMonth" @bind:after="LoadReportAsync">
+            @for (var m = 1; m <= 12; m++)
+            {
+                <option value="@m">@CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(m)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Year</label>
+        <select class="form-select" @bind="_selectedYear" @bind:after="LoadReportAsync">
+            @for (var y = DateTime.UtcNow.Year - 2; y <= DateTime.UtcNow.Year + 2; y++)
+            {
+                <option value="@y">@y</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (_report is not null)
+{
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Total Income</div>
+                <div class="stat-value">$@_report.TotalIncome.ToString("F2")</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value">$@_report.TotalExpense.ToString("F2")</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-label">Net</div>
+                <div class="stat-value">$@_report.Net.ToString("F2")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Income by Category</h3>
+                </div>
+                <div class="card-body">
+                    @if (_report.IncomeByCategory.Count == 0)
+                    {
+                        <p class="text-muted">No income recorded for this month.</p>
+                    }
+                    else
+                    {
+                        @foreach (var item in _report.IncomeByCategory)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>@item.CategoryName</span>
+                                    <span>$@item.Total.ToString("F2") (@item.PercentOfTypeTotal.ToString("F0")%)</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: @(item.PercentOfTypeTotal)%;"></div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Expenses by Category</h3>
+                </div>
+                <div class="card-body">
+                    @if (_report.ExpenseByCategory.Count == 0)
+                    {
+                        <p class="text-muted">No expenses recorded for this month.</p>
+                    }
+                    else
+                    {
+                        @foreach (var item in _report.ExpenseByCategory)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>@item.CategoryName</span>
+                                    <span>$@item.Total.ToString("F2") (@item.PercentOfTypeTotal.ToString("F0")%)</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.PercentOfTypeTotal)%;"></div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private int _selectedMonth = DateTime.UtcNow.Month;
+    private int _selectedYear = DateTime.UtcNow.Year;
+    private MonthlyReportDto? _report;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReportAsync();
+    }
+
+    private async Task LoadReportAsync()
+    {
+        _report = await GetMonthlyReportHandler.Handle(new GetMonthlyReportQuery
+        {
+            Month = _selectedMonth,
+            Year = _selectedYear
+        });
+    }
+}

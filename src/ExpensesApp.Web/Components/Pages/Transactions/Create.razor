@@ -1,0 +1,147 @@
+@page "/transactions/create"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@using ExpensesApp.Application.Common.Models
+@using ExpensesApp.Application.Features.Categories.Queries.GetCategories
+@using ExpensesApp.Application.Features.Transactions.Commands.CreateTransaction
+@using ExpensesApp.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject CreateTransactionCommandHandler CreateTransactionHandler
+@inject GetCategoriesQueryHandler GetCategoriesHandler
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add Transaction - Expenses App</PageTitle>
+
+<div class="page-header mb-5">
+    <h1>Add Transaction</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(_errorMessage))
+                {
+                    <div class="alert alert-danger">@_errorMessage</div>
+                }
+
+                <EditForm Model="_model" OnValidSubmit="HandleCreate">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <InputSelect @bind-Value="_model.Type" class="form-select" @bind-Value:after="OnTypeChangedAsync">
+                            <option value="@TransactionType.Expense">Expense</option>
+                            <option value="@TransactionType.Income">Income</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <InputSelect @bind-Value="_model.CategoryId" class="form-select">
+                            <option value="0">-- Select category --</option>
+                            @foreach (var category in _filteredCategories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <InputNumber @bind-Value="_model.Amount" class="form-control" step="0.01" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Currency</label>
+                        <InputSelect @bind-Value="_model.Currency" class="form-select">
+                            @foreach (var currency in Enum.GetValues<Currency>())
+                            {
+                                <option value="@currency">@currency</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <InputDate @bind-Value="_model.TransactionDate" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <InputTextArea @bind-Value="_model.Description" class="form-control" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" disabled="@_isProcessing">Save Transaction</button>
+                    <a href="/transactions" class="btn btn-outline">Cancel</a>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private TransactionFormModel _model = new();
+    private IReadOnlyList<CategoryDto> _categories = [];
+    private List<CategoryDto> _filteredCategories = new();
+    private string? _errorMessage;
+    private bool _isProcessing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await GetCategoriesHandler.Handle(new GetCategoriesQuery());
+        FilterCategories();
+    }
+
+    private Task OnTypeChangedAsync()
+    {
+        FilterCategories();
+        _model.CategoryId = 0;
+        return Task.CompletedTask;
+    }
+
+    private void FilterCategories()
+    {
+        _filteredCategories = _categories.Where(c => c.Type == _model.Type).ToList();
+    }
+
+    private async Task HandleCreate()
+    {
+        _isProcessing = true;
+        _errorMessage = null;
+
+        try
+        {
+            await CreateTransactionHandler.Handle(new CreateTransactionCommand
+            {
+                Type = _model.Type,
+                Amount = _model.Amount,
+                Currency = _model.Currency,
+                CategoryId = _model.CategoryId,
+                Description = _model.Description,
+                TransactionDate = _model.TransactionDate
+            });
+
+            NavigationManager.NavigateTo("/transactions");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    public class TransactionFormModel
+    {
+        public TransactionType Type { get; set; } = TransactionType.Expense;
+        public int CategoryId { get; set; }
+        public decimal Amount { get; set; }
+        public Currency Currency { get; set; } = Currency.USD;
+        public DateTime TransactionDate { get; set; } = DateTime.UtcNow.Date;
+        public string? Description { get; set; }
+    }
+}

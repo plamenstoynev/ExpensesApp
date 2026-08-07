@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ExpensesApp.Application/ExpensesApp.Application.csproj" />
+    <Project Path="src/ExpensesApp.Domain/ExpensesApp.Domain.csproj" />
+    <Project Path="src/ExpensesApp.Infrastructure/ExpensesApp.Infrastructure.csproj" />
+    <Project Path="src/ExpensesApp.Web/ExpensesApp.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ExpensesApp.Application.UnitTests/ExpensesApp.Application.UnitTests.csproj" />
+    <Project Path="tests/ExpensesApp.Domain.UnitTests/ExpensesApp.Domain.UnitTests.csproj" />
+    <Project Path="tests/ExpensesApp.Infrastructure.IntegrationTests/ExpensesApp.Infrastructure.IntegrationTests.csproj" />
+    <Project Path="tests/ExpensesApp.Web.IntegrationTests/ExpensesApp.Web.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

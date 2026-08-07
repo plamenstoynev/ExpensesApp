@@ -1,0 +1,198 @@
+@page "/"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@using ExpensesApp.Application.Common.Models
+@using ExpensesApp.Application.Features.Budgets.Queries.GetBudgets
+@using ExpensesApp.Application.Features.Reports.Queries.GetMonthlyReport
+@using ExpensesApp.Application.Features.Transactions.Queries.GetTransactions
+@using ExpensesApp.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject GetMonthlyReportQueryHandler GetMonthlyReportHandler
+@inject GetTransactionsQueryHandler GetTransactionsHandler
+@inject GetBudgetsQueryHandler GetBudgetsHandler
+
+<PageTitle>Dashboard - Expenses App</PageTitle>
+
+<div class="dashboard">
+    <div class="page-header mb-5">
+        <h1>Dashboard</h1>
+        <p>Welcome to your expenses app</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon icon-primary">
+                        <svg viewBox="0 0 24 24"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h15v3" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-5" /><circle cx="18" cy="12" r="1.5" /></svg>
+                    </span>
+                </div>
+                <div class="stat-label">Current Balance</div>
+                <div class="stat-value">$@_netBalance.ToString("F2")</div>
+                <div class="stat-change @(_netBalance >= 0 ? "positive" : "negative")">This month</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon icon-success">
+                        <svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5" /><polyline points="5 12 12 5 19 12" /></svg>
+                    </span>
+                </div>
+                <div class="stat-label">Total Income</div>
+                <div class="stat-value">$@_totalIncome.ToString("F2")</div>
+                <div class="stat-change positive">This month</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon icon-danger">
+                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><polyline points="5 12 12 19 19 12" /></svg>
+                    </span>
+                </div>
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value">$@_totalExpense.ToString("F2")</div>
+                <div class="stat-change">This month</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon icon-warning">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" fill="currentColor" /></svg>
+                    </span>
+                </div>
+                <div class="stat-label">Budget Status</div>
+                <div class="stat-value">@_budgetStatusLabel</div>
+                <div class="stat-change">@_budgetPercentUsed.ToString("F0")% used</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Transactions</h3>
+                </div>
+                <div class="card-body">
+                    @if (_recentTransactions.Count == 0)
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💳</div>
+                            <div class="empty-state-title">No transactions yet</div>
+                            <div class="empty-state-text">Start tracking your finances by adding your first transaction</div>
+                            <a href="/transactions/create" class="btn btn-primary">Add Transaction</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in _recentTransactions)
+                                {
+                                    <tr>
+                                        <td>@transaction.TransactionDate.ToString("yyyy-MM-dd")</td>
+                                        <td>
+                                            <span class="badge @(transaction.Type == TransactionType.Income ? "bg-success" : "bg-danger")">
+                                                @transaction.Type
+                                            </span>
+                                        </td>
+                                        <td>@transaction.CategoryName</td>
+                                        <td>@transaction.Description</td>
+                                        <td class="text-end">@transaction.Amount.ToString("F2") @transaction.Currency</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <a href="/transactions" class="btn btn-outline">View All Transactions</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a href="/transactions/create" class="btn btn-primary">Add Transaction</a>
+                        <a href="/categories" class="btn btn-outline">Manage Categories</a>
+                        <a href="/budgets" class="btn btn-outline">Set Budget</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Getting Started</h3>
+                </div>
+                <div class="card-body">
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                        <li style="margin-bottom: 0.5rem;">Set up your categories</li>
+                        <li style="margin-bottom: 0.5rem;">Add your first transaction</li>
+                        <li style="margin-bottom: 0.5rem;">Create monthly budgets</li>
+                        <li>Track your spending</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private decimal _totalIncome;
+    private decimal _totalExpense;
+    private decimal _netBalance;
+    private double _budgetPercentUsed;
+    private string _budgetStatusLabel = "On Track";
+    private IReadOnlyList<TransactionDto> _recentTransactions = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var now = DateTime.UtcNow;
+
+        var reportTask = GetMonthlyReportHandler.Handle(new GetMonthlyReportQuery { Month = now.Month, Year = now.Year });
+        var recentTransactionsTask = GetTransactionsHandler.Handle(new GetTransactionsQuery { PageNumber = 1, PageSize = 5 });
+        var budgetsTask = GetBudgetsHandler.Handle(new GetBudgetsQuery { Month = now.Month, Year = now.Year });
+
+        await Task.WhenAll(reportTask, recentTransactionsTask, budgetsTask);
+
+        var report = await reportTask;
+        _totalIncome = report.TotalIncome;
+        _totalExpense = report.TotalExpense;
+        _netBalance = report.Net;
+
+        _recentTransactions = (await recentTransactionsTask).Items;
+
+        var budgets = await budgetsTask;
+        var totalBudgeted = budgets.Sum(b => b.Amount);
+        var totalSpent = budgets.Sum(b => b.Spent);
+        _budgetPercentUsed = totalBudgeted == 0 ? 0 : Math.Min(100, (double)(totalSpent / totalBudgeted * 100));
+        _budgetStatusLabel = _budgetPercentUsed switch
+        {
+            >= 100 => "Over Budget",
+            >= 80 => "Near Limit",
+            _ => "On Track"
+        };
+    }
+}

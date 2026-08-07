@@ -1,0 +1,186 @@
+@page "/transactions"
+@attribute [Authorize]
+@rendermode InteractiveServer
+@using ExpensesApp.Application.Common.Models
+@using ExpensesApp.Application.Features.Categories.Queries.GetCategories
+@using ExpensesApp.Application.Features.Transactions.Commands.DeleteTransaction
+@using ExpensesApp.Application.Features.Transactions.Queries.GetTransactions
+@using ExpensesApp.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject GetTransactionsQueryHandler GetTransactionsHandler
+@inject DeleteTransactionCommandHandler DeleteTransactionHandler
+@inject GetCategoriesQueryHandler GetCategoriesHandler
+@inject NavigationManager NavigationManager
+
+<PageTitle>Transactions - Expenses App</PageTitle>
+
+<div class="page-header mb-5 d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Transactions</h1>
+        <p>View and manage your income and expenses</p>
+    </div>
+    <a href="/transactions/create" class="btn btn-primary">Add Transaction</a>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Type</label>
+                <select class="form-select" @bind="_filterType" @bind:after="ReloadAsync">
+                    <option value="">All</option>
+                    <option value="@TransactionType.Income">Income</option>
+                    <option value="@TransactionType.Expense">Expense</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" @bind="_filterCategoryId" @bind:after="ReloadAsync">
+                    <option value="0">All</option>
+                    @foreach (var category in _categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">From</label>
+                <input type="date" class="form-control" @bind="_filterStartDate" @bind:after="ReloadAsync" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">To</label>
+                <input type="date" class="form-control" @bind="_filterEndDate" @bind:after="ReloadAsync" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (_result is null || _result.Items.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">💳</div>
+                <div class="empty-state-title">No transactions found</div>
+                <div class="empty-state-text">Try adjusting your filters or add a new transaction</div>
+                <a href="/transactions/create" class="btn btn-primary">Add Transaction</a>
+            </div>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th class="text-end">Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in _result.Items)
+                    {
+                        <tr>
+                            <td>@transaction.TransactionDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <span class="badge @(transaction.Type == TransactionType.Income ? "bg-success" : "bg-danger")">
+                                    @transaction.Type
+                                </span>
+                            </td>
+                            <td>@transaction.CategoryName</td>
+                            <td>@transaction.Description</td>
+                            <td class="text-end">@transaction.Amount.ToString("F2") @transaction.Currency</td>
+                            <td class="text-end">
+                                <a href="/transactions/edit/@transaction.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => HandleDelete(transaction.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (_result.TotalPages > 1)
+            {
+                <nav>
+                    <ul class="pagination">
+                        @for (var p = 1; p <= _result.TotalPages; p++)
+                        {
+                            var pageNum = p;
+                            <li class="page-item @(pageNum == _pageNumber ? "active" : "")">
+                                <button class="page-link" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private PagedResult<TransactionDto>? _result;
+    private IReadOnlyList<CategoryDto> _categories = [];
+    private string _filterType = string.Empty;
+    private int _filterCategoryId;
+    private DateTime? _filterStartDate;
+    private DateTime? _filterEndDate;
+    private int _pageNumber = 1;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await GetCategoriesHandler.Handle(new GetCategoriesQuery());
+        await ReloadAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        _pageNumber = 1;
+        await LoadAsync();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        _pageNumber = page;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        TransactionType? type = string.IsNullOrEmpty(_filterType)
+            ? null
+            : Enum.Parse<TransactionType>(_filterType);
+
+        _result = await GetTransactionsHandler.Handle(new GetTransactionsQuery
+        {
+            Type = type,
+            CategoryId = _filterCategoryId > 0 ? _filterCategoryId : null,
+            StartDate = _filterStartDate,
+            EndDate = _filterEndDate,
+            PageNumber = _pageNumber,
+            PageSize = 20
+        });
+    }
+
+    private async Task HandleDelete(int id)
+    {
+        _errorMessage = null;
+
+        try
+        {
+            await DeleteTransactionHandler.Handle(new DeleteTransactionCommand(id));
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
+    }
+}
