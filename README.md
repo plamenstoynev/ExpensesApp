@@ -80,7 +80,3 @@ dotnet test ExpensesApp.slnx
 - **Application** — one folder per feature (`Features/Transactions`, `Features/Budgets`, ...), each containing a command/query record, a FluentValidation validator, and a handler class.
 - **Infrastructure** — `ApplicationDbContext` (EF Core + ASP.NET Identity), entity configurations, and migrations.
 - **Web** — Blazor Server pages under `Components/Pages`, using constructor-injected handlers directly (no separate API layer, since UI and backend live in the same process).
-
-## Why this exists
-
-I wanted to learn how a real, working ASP.NET Core app is put together — project structure, EF Core, auth, validation, testing — by watching an AI build one from scratch and iterating on it with real requests, the same way I'd work with a human collaborator: describing features, reporting bugs, and asking for design changes. Every commit in this repo's history reflects that back-and-forth.
