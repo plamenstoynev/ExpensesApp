@@ -1,4 +1,5 @@
 using ExpenseTracker.Application.Common.Interfaces;
+using ExpenseTracker.Application.Common.Mappings;
 using ExpenseTracker.Application.Common.Models;
 using ExpenseTracker.Domain.Entities;
 using ExpenseTracker.Domain.Enums;
@@ -95,19 +96,6 @@ public sealed class CreateTransactionCommandHandler
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new TransactionDto
-        {
-            Id = transaction.Id,
-            UserId = transaction.UserId,
-            Type = transaction.Type,
-            Amount = transaction.Amount,
-            Currency = transaction.Currency,
-            CategoryId = transaction.CategoryId,
-            CategoryName = category.Name,
-            Description = transaction.Description,
-            TransactionDate = transaction.TransactionDate,
-            CreatedAtUtc = transaction.CreatedAtUtc,
-            UpdatedAtUtc = transaction.UpdatedAtUtc
-        };
+        return transaction.ToDto(category.Name);
     }
 }

@@ -23,7 +23,7 @@ public sealed class GetCategoriesQueryHandler
         _currentUser = currentUser;
     }
 
-    public async Task<List<CategoryDto>> Handle(
+    public async Task<IReadOnlyList<CategoryDto>> Handle(
         GetCategoriesQuery query,
         CancellationToken cancellationToken = default)
     {
@@ -33,7 +33,6 @@ public sealed class GetCategoriesQueryHandler
         }
 
         var queryable = _context.Categories
-            .AsNoTracking()
             .Where(c => c.UserId == _currentUser.UserId);
 
         if (query.Type.HasValue)

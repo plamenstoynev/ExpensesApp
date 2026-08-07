@@ -130,8 +130,8 @@
     private int _selectedMonth = DateTime.UtcNow.Month;
     private int _selectedYear = DateTime.UtcNow.Year;
     private CreateBudgetModel _model = new();
-    private List<BudgetDto> _budgets = new();
-    private List<CategoryDto> _expenseCategories = new();
+    private IReadOnlyList<BudgetDto> _budgets = [];
+    private IReadOnlyList<CategoryDto> _expenseCategories = [];
     private string? _errorMessage;
     private bool _isProcessing;
 

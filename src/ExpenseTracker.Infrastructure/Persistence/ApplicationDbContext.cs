@@ -16,6 +16,9 @@ public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser>, I
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
+        // Most queries in this app are read-only; opt in to tracking with .AsTracking()
+        // on the few paths that mutate and save an existing entity.
+        ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
     public DbSet<Transaction> Transactions => Set<Transaction>();

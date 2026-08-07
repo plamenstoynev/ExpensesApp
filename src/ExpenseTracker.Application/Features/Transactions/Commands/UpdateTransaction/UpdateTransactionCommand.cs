@@ -1,4 +1,5 @@
 using ExpenseTracker.Application.Common.Interfaces;
+using ExpenseTracker.Application.Common.Mappings;
 using ExpenseTracker.Application.Common.Models;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,7 @@ public sealed class UpdateTransactionCommandHandler
         }
 
         var transaction = await _context.Transactions
+            .AsTracking()
             .Include(t => t.Category)
             .FirstOrDefaultAsync(t => t.Id == command.Id && t.UserId == _currentUser.UserId, cancellationToken);
 
@@ -75,19 +77,6 @@ public sealed class UpdateTransactionCommandHandler
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new TransactionDto
-        {
-            Id = transaction.Id,
-            UserId = transaction.UserId,
-            Type = transaction.Type,
-            Amount = transaction.Amount,
-            Currency = transaction.Currency,
-            CategoryId = transaction.CategoryId,
-            CategoryName = transaction.Category?.Name,
-            Description = transaction.Description,
-            TransactionDate = transaction.TransactionDate,
-            CreatedAtUtc = transaction.CreatedAtUtc,
-            UpdatedAtUtc = transaction.UpdatedAtUtc
-        };
+        return transaction.ToDto(transaction.Category?.Name);
     }
 }

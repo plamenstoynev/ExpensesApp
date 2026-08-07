@@ -37,8 +37,6 @@ public sealed class GetMonthlyReportQueryHandler
         var rangeEnd = rangeStart.AddMonths(1);
 
         var grouped = await _context.Transactions
-            .AsNoTracking()
-            .Include(t => t.Category)
             .Where(t => t.UserId == _currentUser.UserId
                 && t.TransactionDate >= rangeStart
                 && t.TransactionDate < rangeEnd)

@@ -29,8 +29,6 @@ public sealed class GetTransactionByIdQueryHandler
         }
 
         return await _context.Transactions
-            .AsNoTracking()
-            .Include(t => t.Category)
             .Where(t => t.Id == query.Id && t.UserId == _currentUser.UserId)
             .Select(t => new TransactionDto
             {

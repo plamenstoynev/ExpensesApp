@@ -1,4 +1,5 @@
 using ExpenseTracker.Application.Common.Interfaces;
+using ExpenseTracker.Application.Common.Mappings;
 using ExpenseTracker.Application.Common.Models;
 using ExpenseTracker.Domain.Entities;
 using FluentValidation;
@@ -96,18 +97,6 @@ public sealed class CreateBudgetCommandHandler
         _context.Budgets.Add(budget);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return new BudgetDto
-        {
-            Id = budget.Id,
-            UserId = budget.UserId,
-            CategoryId = budget.CategoryId,
-            CategoryName = category.Name,
-            Amount = budget.Amount,
-            Month = budget.Month,
-            Year = budget.Year,
-            Spent = 0,
-            CreatedAtUtc = budget.CreatedAtUtc,
-            UpdatedAtUtc = budget.UpdatedAtUtc
-        };
+        return budget.ToDto(category.Name, spent: 0);
     }
 }

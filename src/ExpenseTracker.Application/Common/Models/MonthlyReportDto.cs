@@ -18,6 +18,6 @@ public sealed record MonthlyReportDto
     public decimal TotalIncome { get; init; }
     public decimal TotalExpense { get; init; }
     public decimal Net => TotalIncome - TotalExpense;
-    public List<CategoryBreakdownDto> IncomeByCategory { get; init; } = new();
-    public List<CategoryBreakdownDto> ExpenseByCategory { get; init; } = new();
+    public IReadOnlyList<CategoryBreakdownDto> IncomeByCategory { get; init; } = [];
+    public IReadOnlyList<CategoryBreakdownDto> ExpenseByCategory { get; init; } = [];
 }

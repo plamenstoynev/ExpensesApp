@@ -126,7 +126,7 @@
 
 @code {
     private PagedResult<TransactionDto>? _result;
-    private List<CategoryDto> _categories = new();
+    private IReadOnlyList<CategoryDto> _categories = [];
     private string _filterType = string.Empty;
     private int _filterCategoryId;
     private DateTime? _filterStartDate;

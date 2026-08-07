@@ -17,7 +17,7 @@ public sealed record GetTransactionsQuery
 
 public sealed record PagedResult<T>
 {
-    public List<T> Items { get; init; } = new();
+    public IReadOnlyList<T> Items { get; init; } = [];
     public int TotalCount { get; init; }
     public int PageNumber { get; init; }
     public int PageSize { get; init; }
@@ -47,8 +47,6 @@ public sealed class GetTransactionsQueryHandler
         }
 
         var queryable = _context.Transactions
-            .AsNoTracking()
-            .Include(t => t.Category)
             .Where(t => t.UserId == _currentUser.UserId);
 
         // Apply filters

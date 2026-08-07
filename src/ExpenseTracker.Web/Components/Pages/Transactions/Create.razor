@@ -83,7 +83,7 @@
 
 @code {
     private TransactionFormModel _model = new();
-    private List<CategoryDto> _categories = new();
+    private IReadOnlyList<CategoryDto> _categories = [];
     private List<CategoryDto> _filteredCategories = new();
     private string? _errorMessage;
     private bool _isProcessing;
